@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>ARR Card Registration</title>
-  <base href="/">
+  <base href="/demo-arr/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Sistemul de Înregistrare Carduri ARR - Aplicație pentru înregistrarea și gestionarea cardurilor tahograf și certificatelor de pregătire profesională">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -11,6 +11,19 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script>
+    // Handle GitHub Pages routing
+    (function(l) {
+      if (l.search[1] === '/' ) {
+        var decoded = l.search.slice(1).split('&').map(function(s) { 
+          return s.replace(/~and~/g, '&')
+        }).join('?');
+        window.history.replaceState(null, null,
+            l.pathname.slice(0, -1) + decoded + l.hash
+        );
+      }
+    }(window.location))
+  </script>
 </head>
 <body>
   <app-root></app-root>
