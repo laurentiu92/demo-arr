@@ -1,0 +1,11 @@
+{
+  "routes": [
+    "/",
+    "/apply",
+    "/apply/adr",
+    "/apply/company_tachograph",
+    "/apply/cpp",
+    "/apply/driver_tachograph",
+    "/apply/workshop_tachograph"
+  ]
+}
