@@ -1,8 +1,38 @@
 # ARR Card Registration System
 
-Sistemul de Înregistrare Carduri ARR - Aplicație pentru înregistrarea și gestionarea cardurilor tahograf și certificatelor de pregătire profesională.
+This is a demo application for the Romanian Road Authority (ARR) Card Registration System. The application provides a modern web interface for citizens to apply for various types of cards:
+
+- Driver Tachograph Cards
+- Company Tachograph Cards
+- Workshop Tachograph Cards
+- CPP (Professional Training Certificate) Cards
+- ADR (Dangerous Goods) Cards
+
+## Features
+
+- Modern, responsive user interface
+- Dynamic forms based on card type
+- Document upload functionality
+- Email validation
+- Romanian language interface
+- Mock data for demonstration purposes
+
+## Technical Stack
+
+- Angular 18
+- Angular Material
+- PrimeNG Components
+- SCSS for styling
+- Server-Side Rendering (SSR) enabled
 
 ## Development
+
+### Prerequisites
+
+- Node.js (v18 or later)
+- npm (v9 or later)
+
+### Installation
 
 ```bash
 # Install dependencies
@@ -14,36 +44,6 @@ npm start
 # Build for production
 npm run build
 ```
-
-## Deployment
-
-The application is automatically deployed to GitHub Pages at https://laurentiu92.github.io/demo-arr/ when changes are pushed to the main branch.
-
-### Manual Deployment
-
-1. Build the application:
-```bash
-npm run build
-```
-
-2. The build output will be in the `docs` folder
-
-3. Push the changes to the `gh-pages` branch
-
-## Features
-
-- Card Tahograf Șofer
-- Card Tahograf Companie
-- Card Tahograf Atelier
-- Certificat de Pregătire Profesională (CPP)
-- Certificat ADR
-
-## Technologies
-
-- Angular 17
-- Angular Material
-- TypeScript
-- SCSS
 
 ## Project Structure
 
