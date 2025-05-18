@@ -3,7 +3,7 @@ import { HomeComponent } from './features/card-application/home/home.component';
 
 export const routes: Routes = [
   {
-    path: '',
+    path: 'demo-arr',
     component: HomeComponent
   },
   {
