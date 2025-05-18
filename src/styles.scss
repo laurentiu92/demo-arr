@@ -1,0 +1,146 @@
+/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+@use 'sass:map';
+
+// Include the common styles for Angular Material
+@include mat.core();
+
+// Define the palettes for your theme using the Material Design palettes
+$arr-primary: mat.m2-define-palette(mat.$m2-indigo-palette, 700); // Using indigo palette with 700 as primary
+$arr-accent: mat.m2-define-palette(mat.$m2-pink-palette, A200, A100, A400);
+$arr-warn: mat.m2-define-palette(mat.$m2-red-palette);
+
+// Create the theme object
+$arr-theme: mat.m2-define-light-theme((
+  color: (
+    primary: $arr-primary,
+    accent: $arr-accent,
+    warn: $arr-warn,
+  ),
+  typography: mat.m2-define-typography-config(),
+  density: 0,
+));
+
+// Include theme styles for core and each component used in your app
+@include mat.all-component-themes($arr-theme);
+
+// Global styles
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+}
+
+// Custom variables
+:root {
+  --arr-primary: #{mat.m2-get-color-from-palette($arr-primary, 700)};
+  --arr-primary-light: #{mat.m2-get-color-from-palette($arr-primary, 400)};
+  --arr-primary-dark: #{mat.m2-get-color-from-palette($arr-primary, 900)};
+  --arr-accent: #{mat.m2-get-color-from-palette($arr-accent, A200)};
+  --arr-accent-light: #{mat.m2-get-color-from-palette($arr-accent, A100)};
+  --arr-accent-dark: #{mat.m2-get-color-from-palette($arr-accent, A400)};
+  --arr-warn: #{mat.m2-get-color-from-palette($arr-warn, 500)};
+  --arr-success: #4caf50;
+  --arr-gray-50: #fafafa;
+  --arr-gray-100: #f5f5f5;
+  --arr-gray-200: #eeeeee;
+  --arr-gray-300: #e0e0e0;
+  --arr-gray-400: #bdbdbd;
+  --arr-gray-500: #9e9e9e;
+  --arr-gray-600: #757575;
+  --arr-gray-700: #616161;
+  --arr-gray-800: #424242;
+  --arr-gray-900: #212121;
+  
+  --arr-spacing-unit: 8px;
+  --arr-border-radius: 4px;
+  --arr-shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+  --arr-shadow-md: 0 4px 8px rgba(0,0,0,0.1);
+  --arr-shadow-lg: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+// Utility classes
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-left { text-align: left; }
+
+.mt-1 { margin-top: var(--arr-spacing-unit); }
+.mt-2 { margin-top: calc(var(--arr-spacing-unit) * 2); }
+.mt-3 { margin-top: calc(var(--arr-spacing-unit) * 3); }
+.mt-4 { margin-top: calc(var(--arr-spacing-unit) * 4); }
+
+.mb-1 { margin-bottom: var(--arr-spacing-unit); }
+.mb-2 { margin-bottom: calc(var(--arr-spacing-unit) * 2); }
+.mb-3 { margin-bottom: calc(var(--arr-spacing-unit) * 3); }
+.mb-4 { margin-bottom: calc(var(--arr-spacing-unit) * 4); }
+
+.ml-1 { margin-left: var(--arr-spacing-unit); }
+.ml-2 { margin-left: calc(var(--arr-spacing-unit) * 2); }
+.ml-3 { margin-left: calc(var(--arr-spacing-unit) * 3); }
+.ml-4 { margin-left: calc(var(--arr-spacing-unit) * 4); }
+
+.mr-1 { margin-right: var(--arr-spacing-unit); }
+.mr-2 { margin-right: calc(var(--arr-spacing-unit) * 2); }
+.mr-3 { margin-right: calc(var(--arr-spacing-unit) * 3); }
+.mr-4 { margin-right: calc(var(--arr-spacing-unit) * 4); }
+
+.p-1 { padding: var(--arr-spacing-unit); }
+.p-2 { padding: calc(var(--arr-spacing-unit) * 2); }
+.p-3 { padding: calc(var(--arr-spacing-unit) * 3); }
+.p-4 { padding: calc(var(--arr-spacing-unit) * 4); }
+
+// Form styles
+.form-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: calc(var(--arr-spacing-unit) * 2);
+}
+
+.form-section {
+  background: white;
+  border-radius: var(--arr-border-radius);
+  padding: calc(var(--arr-spacing-unit) * 2);
+  margin-bottom: calc(var(--arr-spacing-unit) * 2);
+  box-shadow: var(--arr-shadow-sm);
+}
+
+.form-title {
+  color: var(--arr-primary);
+  margin-bottom: calc(var(--arr-spacing-unit) * 2);
+  font-weight: 500;
+}
+
+.form-subtitle {
+  color: var(--arr-gray-700);
+  margin-bottom: calc(var(--arr-spacing-unit) * 2);
+  font-weight: 400;
+}
+
+// Responsive utilities
+@media (max-width: 600px) {
+  .form-container {
+    padding: var(--arr-spacing-unit);
+  }
+  
+  .form-section {
+    padding: var(--arr-spacing-unit);
+  }
+}
+
+// Print styles
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .form-container {
+    max-width: none;
+    padding: 0;
+  }
+  
+  .form-section {
+    box-shadow: none;
+    border: 1px solid var(--arr-gray-300);
+    break-inside: avoid;
+  }
+}
