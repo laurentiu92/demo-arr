@@ -47,16 +47,8 @@ import { MockDataService } from '../../../core/services/mock-data.service';
               
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Tip Card</mat-label>
-                <mat-select formControlName="cardType" (selectionChange)="onCardTypeSelected($event)">
-                  @for (type of cardTypes; track type.type) {
-                    <mat-option [value]="type.type">
-                      {{ type.label }}
-                    </mat-option>
-                  }
-                </mat-select>
-                @if (cardTypeForm.get('cardType')?.hasError('required') && cardTypeForm.get('cardType')?.touched) {
-                  <mat-error>Acest câmp este obligatoriu</mat-error>
-                }
+                <input matInput [value]="selectedCardType?.label" readonly>
+                <mat-icon matSuffix>lock</mat-icon>
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="full-width">
@@ -183,6 +175,86 @@ import { MockDataService } from '../../../core/services/mock-data.service';
                   }
                 </mat-form-field>
               </div>
+
+              <!-- Driver's License Information -->
+              @if (selectedCardType?.type === 'DRIVER_TACHOGRAPH') {
+                <h3 class="form-subtitle mt-4">Permis de Conducere</h3>
+                <div formGroupName="driverLicense">
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="half-width">
+                      <mat-label>Număr/Serie Permis</mat-label>
+                      <input matInput formControlName="licenseNumber" required>
+                      @if (personalInfoForm.get('driverLicense.licenseNumber')?.hasError('required') && personalInfoForm.get('driverLicense.licenseNumber')?.touched) {
+                        <mat-error>Acest câmp este obligatoriu</mat-error>
+                      }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="half-width">
+                      <mat-label>Categorii Permis</mat-label>
+                      <mat-select formControlName="categories" multiple required>
+                        <mat-option value="AM">AM - Ciclomotore</mat-option>
+                        <mat-option value="A1">A1 - Motociclete ușoare</mat-option>
+                        <mat-option value="A2">A2 - Motociclete medii</mat-option>
+                        <mat-option value="A">A - Motociclete</mat-option>
+                        <mat-option value="B1">B1 - Tricicluri și cvadricicluri</mat-option>
+                        <mat-option value="B">B - Autoturisme</mat-option>
+                        <mat-option value="BE">BE - Autoturisme cu remorcă</mat-option>
+                        <mat-option value="C1">C1 - Autocamioane ușoare</mat-option>
+                        <mat-option value="C1E">C1E - Autocamioane ușoare cu remorcă</mat-option>
+                        <mat-option value="C">C - Autocamioane</mat-option>
+                        <mat-option value="CE">CE - Autocamioane cu remorcă</mat-option>
+                        <mat-option value="D1">D1 - Microbuze</mat-option>
+                        <mat-option value="D1E">D1E - Microbuze cu remorcă</mat-option>
+                        <mat-option value="D">D - Autobuze</mat-option>
+                        <mat-option value="DE">DE - Autobuze cu remorcă</mat-option>
+                      </mat-select>
+                      @if (personalInfoForm.get('driverLicense.categories')?.hasError('required') && personalInfoForm.get('driverLicense.categories')?.touched) {
+                        <mat-error>Acest câmp este obligatoriu</mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="half-width">
+                      <mat-label>Data Emiterii</mat-label>
+                      <input matInput [matDatepicker]="issueDatePicker" formControlName="issueDate" required>
+                      <mat-datepicker-toggle matSuffix [for]="issueDatePicker"></mat-datepicker-toggle>
+                      <mat-datepicker #issueDatePicker></mat-datepicker>
+                      @if (personalInfoForm.get('driverLicense.issueDate')?.hasError('required') && personalInfoForm.get('driverLicense.issueDate')?.touched) {
+                        <mat-error>Acest câmp este obligatoriu</mat-error>
+                      }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="half-width">
+                      <mat-label>Data Expirării</mat-label>
+                      <input matInput [matDatepicker]="expiryDatePicker" formControlName="expiryDate" required>
+                      <mat-datepicker-toggle matSuffix [for]="expiryDatePicker"></mat-datepicker-toggle>
+                      <mat-datepicker #expiryDatePicker></mat-datepicker>
+                      @if (personalInfoForm.get('driverLicense.expiryDate')?.hasError('required') && personalInfoForm.get('driverLicense.expiryDate')?.touched) {
+                        <mat-error>Acest câmp este obligatoriu</mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="half-width">
+                      <mat-label>Autoritatea Emitentă</mat-label>
+                      <input matInput formControlName="issuingAuthority" required>
+                      @if (personalInfoForm.get('driverLicense.issuingAuthority')?.hasError('required') && personalInfoForm.get('driverLicense.issuingAuthority')?.touched) {
+                        <mat-error>Acest câmp este obligatoriu</mat-error>
+                      }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="half-width">
+                      <mat-label>Țara Emitentă</mat-label>
+                      <input matInput formControlName="issuingCountry" required>
+                      @if (personalInfoForm.get('driverLicense.issuingCountry')?.hasError('required') && personalInfoForm.get('driverLicense.issuingCountry')?.touched) {
+                        <mat-error>Acest câmp este obligatoriu</mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+                </div>
+              }
 
               <!-- Address Form Fields -->
               <h3 class="form-subtitle mt-4">Adresa</h3>
@@ -471,6 +543,14 @@ export class BaseApplicationFormComponent implements OnInit {
       birthPlace: ['', Validators.required],
       phone: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
+      driverLicense: this.fb.group({
+        licenseNumber: [''],
+        categories: [[]],
+        issueDate: [''],
+        expiryDate: [''],
+        issuingAuthority: [''],
+        issuingCountry: ['']
+      }),
       address: this.fb.group({
         street: ['', Validators.required],
         number: ['', Validators.required],
@@ -530,6 +610,25 @@ export class BaseApplicationFormComponent implements OnInit {
   protected updateFormValidation(): void {
     // Update form validation based on selected card type and request type
     // This will be implemented by child components
+
+    // Add validation for driver's license when card type is DRIVER_TACHOGRAPH
+    const driverLicenseGroup = this.personalInfoForm.get('driverLicense');
+    if (this.selectedCardType?.type === 'DRIVER_TACHOGRAPH') {
+      driverLicenseGroup?.get('licenseNumber')?.setValidators(Validators.required);
+      driverLicenseGroup?.get('categories')?.setValidators(Validators.required);
+      driverLicenseGroup?.get('issueDate')?.setValidators(Validators.required);
+      driverLicenseGroup?.get('expiryDate')?.setValidators(Validators.required);
+      driverLicenseGroup?.get('issuingAuthority')?.setValidators(Validators.required);
+      driverLicenseGroup?.get('issuingCountry')?.setValidators(Validators.required);
+    } else {
+      driverLicenseGroup?.get('licenseNumber')?.clearValidators();
+      driverLicenseGroup?.get('categories')?.clearValidators();
+      driverLicenseGroup?.get('issueDate')?.clearValidators();
+      driverLicenseGroup?.get('expiryDate')?.clearValidators();
+      driverLicenseGroup?.get('issuingAuthority')?.clearValidators();
+      driverLicenseGroup?.get('issuingCountry')?.clearValidators();
+    }
+    driverLicenseGroup?.updateValueAndValidity();
   }
 
   private updateCnpValidation(): void {
