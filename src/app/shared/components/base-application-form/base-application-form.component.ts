@@ -47,8 +47,16 @@ import { MockDataService } from '../../../core/services/mock-data.service';
               
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Tip Card</mat-label>
-                <input matInput [value]="getSelectedCardTypeLabel()" readonly>
-                <mat-icon matSuffix>lock</mat-icon>
+                <mat-select formControlName="cardType" (selectionChange)="onCardTypeSelected($event)">
+                  @for (type of cardTypes; track type.type) {
+                    <mat-option [value]="type.type">
+                      {{ type.label }}
+                    </mat-option>
+                  }
+                </mat-select>
+                @if (cardTypeForm.get('cardType')?.hasError('required') && cardTypeForm.get('cardType')?.touched) {
+                  <mat-error>Acest câmp este obligatoriu</mat-error>
+                }
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="full-width">
@@ -576,11 +584,5 @@ export class BaseApplicationFormComponent implements OnInit {
         }
       });
     }
-  }
-
-  getSelectedCardTypeLabel(): string {
-    const selectedType = this.cardTypeForm.get('cardType')?.value;
-    const cardType = this.cardTypes.find(type => type.type === selectedType);
-    return cardType ? cardType.label : '';
   }
 } 

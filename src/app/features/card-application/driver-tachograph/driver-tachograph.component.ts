@@ -10,7 +10,6 @@ import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDividerModule } from '@angular/material/divider';
 
 import { BaseApplicationFormComponent } from '../../../shared/components/base-application-form/base-application-form.component';
 import { CardType } from '../../../models/card-types.enum';
@@ -21,7 +20,6 @@ import { MockDataService } from '../../../core/services/mock-data.service';
   standalone: true,
   imports: [
     BaseApplicationFormComponent,
-    ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -30,7 +28,7 @@ import { MockDataService } from '../../../core/services/mock-data.service';
     MatCheckboxModule,
     MatButtonModule,
     MatIconModule,
-    MatDividerModule
+    ReactiveFormsModule
   ],
   template: `
     <app-base-application-form
@@ -40,25 +38,41 @@ import { MockDataService } from '../../../core/services/mock-data.service';
       <!-- Additional Driver Tachograph specific fields -->
       <div class="form-section" *ngIf="driverForm && selectedCardType?.type === CardType.DRIVER_TACHOGRAPH">
         <h2 class="form-title">Informații Șofer</h2>
-        <p class="form-subtitle">Vă rugăm să completați informațiile despre permisul de conducere și cardul anterior (dacă este cazul)</p>
+        <p class="form-subtitle">Vă rugăm să completați informațiile specifice pentru cardul de șofer</p>
 
         <form [formGroup]="driverForm">
-          <!-- Driving License Information -->
-          <h3 class="form-subtitle">Permis de Conducere</h3>
+          <!-- License Information -->
+          <h3 class="form-subtitle">Informații Permis de Conducere</h3>
           <div class="form-row">
             <mat-form-field appearance="outline" class="half-width">
               <mat-label>Număr Permis de Conducere</mat-label>
-              <input matInput formControlName="licenseNumber" required>
+              <input matInput formControlName="licenseNumber" required
+                     pattern="^[A-Z0-9]{8,}$"
+                     placeholder="Ex: AB123456">
               @if (driverForm.get('licenseNumber')?.hasError('required') && driverForm.get('licenseNumber')?.touched) {
                 <mat-error>Acest câmp este obligatoriu</mat-error>
+              }
+              @if (driverForm.get('licenseNumber')?.hasError('pattern') && driverForm.get('licenseNumber')?.touched) {
+                <mat-error>Format invalid. Trebuie să conțină minim 8 caractere (litere și cifre)</mat-error>
               }
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="half-width">
-              <mat-label>Serie Permis de Conducere</mat-label>
-              <input matInput formControlName="licenseSeries" required>
-              @if (driverForm.get('licenseSeries')?.hasError('required') && driverForm.get('licenseSeries')?.touched) {
+              <mat-label>Categorii Permis</mat-label>
+              <mat-select formControlName="licenseCategories" multiple required>
+                <mat-option value="A">A - Motociclete</mat-option>
+                <mat-option value="B">B - Autoturisme</mat-option>
+                <mat-option value="C">C - Autocamioane</mat-option>
+                <mat-option value="D">D - Autobuze</mat-option>
+                <mat-option value="E">E - Remorci</mat-option>
+                <mat-option value="F">F - Tractoare</mat-option>
+                <mat-option value="G">G - Mașini agricole</mat-option>
+              </mat-select>
+              @if (driverForm.get('licenseCategories')?.hasError('required') && driverForm.get('licenseCategories')?.touched) {
                 <mat-error>Acest câmp este obligatoriu</mat-error>
+              }
+              @if (driverForm.get('licenseCategories')?.hasError('minLength') && driverForm.get('licenseCategories')?.touched) {
+                <mat-error>Trebuie să selectați cel puțin o categorie</mat-error>
               }
             </mat-form-field>
           </div>
@@ -66,11 +80,14 @@ import { MockDataService } from '../../../core/services/mock-data.service';
           <div class="form-row">
             <mat-form-field appearance="outline" class="half-width">
               <mat-label>Data Emiterii Permisului</mat-label>
-              <input matInput [matDatepicker]="licenseIssueDatePicker" formControlName="licenseIssueDate" required>
-              <mat-datepicker-toggle matSuffix [for]="licenseIssueDatePicker"></mat-datepicker-toggle>
-              <mat-datepicker #licenseIssueDatePicker></mat-datepicker>
+              <input matInput [matDatepicker]="licenseDatePicker" formControlName="licenseIssueDate" required>
+              <mat-datepicker-toggle matSuffix [for]="licenseDatePicker"></mat-datepicker-toggle>
+              <mat-datepicker #licenseDatePicker></mat-datepicker>
               @if (driverForm.get('licenseIssueDate')?.hasError('required') && driverForm.get('licenseIssueDate')?.touched) {
                 <mat-error>Acest câmp este obligatoriu</mat-error>
+              }
+              @if (driverForm.get('licenseIssueDate')?.hasError('futureDate') && driverForm.get('licenseIssueDate')?.touched) {
+                <mat-error>Data emiterii nu poate fi în viitor</mat-error>
               }
             </mat-form-field>
 
@@ -82,138 +99,92 @@ import { MockDataService } from '../../../core/services/mock-data.service';
               @if (driverForm.get('licenseExpiryDate')?.hasError('required') && driverForm.get('licenseExpiryDate')?.touched) {
                 <mat-error>Acest câmp este obligatoriu</mat-error>
               }
+              @if (driverForm.get('licenseExpiryDate')?.hasError('pastDate') && driverForm.get('licenseExpiryDate')?.touched) {
+                <mat-error>Data expirării trebuie să fie în viitor</mat-error>
+              }
             </mat-form-field>
           </div>
 
+          <!-- Employer Information -->
+          <h3 class="form-subtitle">Informații Angajator</h3>
           <div class="form-row">
             <mat-form-field appearance="outline" class="half-width">
-              <mat-label>Autoritatea Emitentă</mat-label>
-              <input matInput formControlName="licenseIssuingAuthority" required>
-              @if (driverForm.get('licenseIssuingAuthority')?.hasError('required') && driverForm.get('licenseIssuingAuthority')?.touched) {
+              <mat-label>Codul Unic de Înregistrare (CUI) Angajator</mat-label>
+              <input matInput formControlName="employerCui" required
+                     pattern="^RO[0-9]{2,10}$"
+                     placeholder="Ex: RO12345678">
+              @if (driverForm.get('employerCui')?.hasError('required') && driverForm.get('employerCui')?.touched) {
                 <mat-error>Acest câmp este obligatoriu</mat-error>
+              }
+              @if (driverForm.get('employerCui')?.hasError('pattern') && driverForm.get('employerCui')?.touched) {
+                <mat-error>Format invalid. Trebuie să înceapă cu RO urmat de 2-10 cifre</mat-error>
               }
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="half-width">
-              <mat-label>Țara Emitentă</mat-label>
-              <input matInput formControlName="licenseIssuingCountry" required>
-              @if (driverForm.get('licenseIssuingCountry')?.hasError('required') && driverForm.get('licenseIssuingCountry')?.touched) {
+              <mat-label>Denumire Angajator</mat-label>
+              <input matInput formControlName="employerName" required
+                     minlength="3"
+                     maxlength="100">
+              @if (driverForm.get('employerName')?.hasError('required') && driverForm.get('employerName')?.touched) {
                 <mat-error>Acest câmp este obligatoriu</mat-error>
+              }
+              @if (driverForm.get('employerName')?.hasError('minlength') && driverForm.get('employerName')?.touched) {
+                <mat-error>Denumirea trebuie să aibă cel puțin 3 caractere</mat-error>
+              }
+              @if (driverForm.get('employerName')?.hasError('maxlength') && driverForm.get('employerName')?.touched) {
+                <mat-error>Denumirea nu poate depăși 100 de caractere</mat-error>
               }
             </mat-form-field>
           </div>
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Categorii Permis de Conducere</mat-label>
-              <mat-select formControlName="licenseCategories" multiple required>
-                <mat-option value="A">A - Motociclete</mat-option>
-                <mat-option value="B">B - Autoturisme</mat-option>
-                <mat-option value="C">C - Camioane</mat-option>
-                <mat-option value="D">D - Autobuze</mat-option>
-                <mat-option value="E">E - Remorci</mat-option>
-                <mat-option value="CE">CE - Camioane cu remorcă</mat-option>
-                <mat-option value="DE">DE - Autobuze cu remorcă</mat-option>
-              </mat-select>
-              @if (driverForm.get('licenseCategories')?.hasError('required') && driverForm.get('licenseCategories')?.touched) {
+              <mat-label>Adresa Angajator</mat-label>
+              <input matInput formControlName="employerAddress" required
+                     minlength="5"
+                     maxlength="200">
+              @if (driverForm.get('employerAddress')?.hasError('required') && driverForm.get('employerAddress')?.touched) {
                 <mat-error>Acest câmp este obligatoriu</mat-error>
+              }
+              @if (driverForm.get('employerAddress')?.hasError('minlength') && driverForm.get('employerAddress')?.touched) {
+                <mat-error>Adresa trebuie să aibă cel puțin 5 caractere</mat-error>
+              }
+              @if (driverForm.get('employerAddress')?.hasError('maxlength') && driverForm.get('employerAddress')?.touched) {
+                <mat-error>Adresa nu poate depăși 200 de caractere</mat-error>
               }
             </mat-form-field>
           </div>
-
-          <mat-divider class="my-4"></mat-divider>
 
           <!-- Previous Card Information -->
           <h3 class="form-subtitle">Informații Card Anterior</h3>
           <div class="form-row">
             <mat-checkbox formControlName="hasPreviousCard" color="primary">
-              Am deținut anterior un card tahograf
+              Am deținut anterior un card de conducător
             </mat-checkbox>
           </div>
 
-          @if (driverForm.get('hasPreviousCard')?.value) {
-            <div class="form-row">
-              <mat-form-field appearance="outline" class="half-width">
-                <mat-label>Număr Card Anterior</mat-label>
-                <input matInput formControlName="previousCardNumber">
-                @if (driverForm.get('previousCardNumber')?.hasError('required') && driverForm.get('previousCardNumber')?.touched) {
-                  <mat-error>Acest câmp este obligatoriu</mat-error>
-                }
-              </mat-form-field>
+          <div class="form-row" *ngIf="driverForm.get('hasPreviousCard')?.value">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Număr Card Anterior</mat-label>
+              <input matInput formControlName="previousCardNumber"
+                     pattern="^[A-Z0-9]{8,}$"
+                     placeholder="Ex: TC12345678">
+              @if (driverForm.get('previousCardNumber')?.hasError('pattern') && driverForm.get('previousCardNumber')?.touched) {
+                <mat-error>Format invalid. Trebuie să conțină minim 8 caractere (litere și cifre)</mat-error>
+              }
+            </mat-form-field>
 
-              <mat-form-field appearance="outline" class="half-width">
-                <mat-label>Data Expirării Cardului Anterior</mat-label>
-                <input matInput [matDatepicker]="previousCardExpiryPicker" formControlName="previousCardExpiryDate">
-                <mat-datepicker-toggle matSuffix [for]="previousCardExpiryPicker"></mat-datepicker-toggle>
-                <mat-datepicker #previousCardExpiryPicker></mat-datepicker>
-                @if (driverForm.get('previousCardExpiryDate')?.hasError('required') && driverForm.get('previousCardExpiryDate')?.touched) {
-                  <mat-error>Acest câmp este obligatoriu</mat-error>
-                }
-              </mat-form-field>
-            </div>
-
-            <div class="form-row">
-              <mat-form-field appearance="outline" class="half-width">
-                <mat-label>Țara Emitentă Card Anterior</mat-label>
-                <input matInput formControlName="previousCardIssuingCountry">
-                @if (driverForm.get('previousCardIssuingCountry')?.hasError('required') && driverForm.get('previousCardIssuingCountry')?.touched) {
-                  <mat-error>Acest câmp este obligatoriu</mat-error>
-                }
-              </mat-form-field>
-
-              <mat-form-field appearance="outline" class="half-width">
-                <mat-label>Autoritatea Emitentă Card Anterior</mat-label>
-                <input matInput formControlName="previousCardIssuingAuthority">
-                @if (driverForm.get('previousCardIssuingAuthority')?.hasError('required') && driverForm.get('previousCardIssuingAuthority')?.touched) {
-                  <mat-error>Acest câmp este obligatoriu</mat-error>
-                }
-              </mat-form-field>
-            </div>
-
-            <div class="form-row">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Motivul Schimbării Cardului</mat-label>
-                <mat-select formControlName="cardChangeReason">
-                  <mat-option value="EXPIRED">Expirat</mat-option>
-                  <mat-option value="LOST">Pierdut</mat-option>
-                  <mat-option value="STOLEN">Furat</mat-option>
-                  <mat-option value="DAMAGED">Defect</mat-option>
-                  <mat-option value="NAME_CHANGE">Schimbare nume</mat-option>
-                  <mat-option value="ADDRESS_CHANGE">Schimbare adresă</mat-option>
-                  <mat-option value="PHOTO_CHANGE">Schimbare fotografie</mat-option>
-                  <mat-option value="LICENSE_CHANGE">Schimbare permis</mat-option>
-                  <mat-option value="WITHDRAWN">Retras</mat-option>
-                </mat-select>
-                @if (driverForm.get('cardChangeReason')?.hasError('required') && driverForm.get('cardChangeReason')?.touched) {
-                  <mat-error>Acest câmp este obligatoriu</mat-error>
-                }
-              </mat-form-field>
-            </div>
-
-            @if (driverForm.get('cardChangeReason')?.value === 'NAME_CHANGE') {
-              <div class="form-row">
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>Nume Anterior</mat-label>
-                  <input matInput formControlName="previousName">
-                  @if (driverForm.get('previousName')?.hasError('required') && driverForm.get('previousName')?.touched) {
-                    <mat-error>Acest câmp este obligatoriu</mat-error>
-                  }
-                </mat-form-field>
-              </div>
-            }
-
-            @if (driverForm.get('cardChangeReason')?.value === 'ADDRESS_CHANGE') {
-              <div class="form-row">
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>Adresa Anterioară</mat-label>
-                  <input matInput formControlName="previousAddress">
-                  @if (driverForm.get('previousAddress')?.hasError('required') && driverForm.get('previousAddress')?.touched) {
-                    <mat-error>Acest câmp este obligatoriu</mat-error>
-                  }
-                </mat-form-field>
-              </div>
-            }
-          }
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Data Expirării Cardului Anterior</mat-label>
+              <input matInput [matDatepicker]="previousCardExpiryPicker" formControlName="previousCardExpiryDate">
+              <mat-datepicker-toggle matSuffix [for]="previousCardExpiryPicker"></mat-datepicker-toggle>
+              <mat-datepicker #previousCardExpiryPicker></mat-datepicker>
+              @if (driverForm.get('previousCardExpiryDate')?.hasError('futureDate') && driverForm.get('previousCardExpiryDate')?.touched) {
+                <mat-error>Data expirării trebuie să fie în trecut</mat-error>
+              }
+            </mat-form-field>
+          </div>
 
           <!-- Terms and Conditions -->
           <div class="form-row">
@@ -291,10 +262,6 @@ import { MockDataService } from '../../../core/services/mock-data.service';
     button[mat-button] {
       min-width: 200px;
     }
-
-    .my-4 {
-      margin: 2rem 0;
-    }
   `]
 })
 export class DriverTachographComponent extends BaseApplicationFormComponent implements OnInit {
@@ -311,21 +278,16 @@ export class DriverTachographComponent extends BaseApplicationFormComponent impl
     
     // Initialize driver-specific form with enhanced validations
     this.driverForm = this.fb.group({
-      licenseNumber: ['', Validators.required],
-      licenseSeries: ['', Validators.required],
-      licenseIssueDate: ['', Validators.required],
-      licenseExpiryDate: ['', Validators.required],
-      licenseIssuingAuthority: ['', Validators.required],
-      licenseIssuingCountry: ['', Validators.required],
-      licenseCategories: [[], Validators.required],
+      licenseNumber: ['', [Validators.required, Validators.pattern('^[A-Z0-9]{8,}$')]],
+      licenseCategories: [[], [Validators.required, Validators.minLength(1)]],
+      licenseIssueDate: ['', [Validators.required, this.futureDateValidator()]],
+      licenseExpiryDate: ['', [Validators.required, this.pastDateValidator()]],
+      employerCui: ['', [Validators.required, Validators.pattern('^RO[0-9]{2,10}$')]],
+      employerName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      employerAddress: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(200)]],
       hasPreviousCard: [false],
-      previousCardNumber: [''],
-      previousCardExpiryDate: [''],
-      previousCardIssuingCountry: [''],
-      previousCardIssuingAuthority: [''],
-      cardChangeReason: [''],
-      previousName: [''],
-      previousAddress: [''],
+      previousCardNumber: ['', [Validators.pattern('^[A-Z0-9]{8,}$')]],
+      previousCardExpiryDate: ['', this.futureDateValidator()],
       acceptsTerms: [false, Validators.requiredTrue],
       declaresAccuracy: [false, Validators.requiredTrue]
     });
@@ -352,56 +314,19 @@ export class DriverTachographComponent extends BaseApplicationFormComponent impl
 
     // Subscribe to hasPreviousCard changes to update validation
     this.driverForm.get('hasPreviousCard')?.valueChanges.subscribe(hasPrevious => {
-      const previousCardControls = [
-        'previousCardNumber',
-        'previousCardExpiryDate',
-        'previousCardIssuingCountry',
-        'previousCardIssuingAuthority',
-        'cardChangeReason'
-      ];
+      const previousCardNumber = this.driverForm.get('previousCardNumber');
+      const previousCardExpiryDate = this.driverForm.get('previousCardExpiryDate');
 
-      previousCardControls.forEach(controlName => {
-        const control = this.driverForm.get(controlName);
-        if (hasPrevious) {
-          control?.setValidators(Validators.required);
-        } else {
-          control?.clearValidators();
-        }
-        control?.updateValueAndValidity();
-      });
-
-      // Reset previous card fields when hasPreviousCard is false
-      if (!hasPrevious) {
-        this.driverForm.patchValue({
-          previousCardNumber: '',
-          previousCardExpiryDate: '',
-          previousCardIssuingCountry: '',
-          previousCardIssuingAuthority: '',
-          cardChangeReason: '',
-          previousName: '',
-          previousAddress: ''
-        });
-      }
-    });
-
-    // Add validation for previous name and address based on cardChangeReason
-    this.driverForm.get('cardChangeReason')?.valueChanges.subscribe(reason => {
-      const previousNameControl = this.driverForm.get('previousName');
-      const previousAddressControl = this.driverForm.get('previousAddress');
-
-      if (reason === 'NAME_CHANGE') {
-        previousNameControl?.setValidators(Validators.required);
-        previousAddressControl?.clearValidators();
-      } else if (reason === 'ADDRESS_CHANGE') {
-        previousNameControl?.clearValidators();
-        previousAddressControl?.setValidators(Validators.required);
+      if (hasPrevious) {
+        previousCardNumber?.setValidators([Validators.required, Validators.pattern('^[A-Z0-9]{8,}$')]);
+        previousCardExpiryDate?.setValidators([Validators.required, this.futureDateValidator()]);
       } else {
-        previousNameControl?.clearValidators();
-        previousAddressControl?.clearValidators();
+        previousCardNumber?.clearValidators();
+        previousCardExpiryDate?.clearValidators();
       }
 
-      previousNameControl?.updateValueAndValidity();
-      previousAddressControl?.updateValueAndValidity();
+      previousCardNumber?.updateValueAndValidity();
+      previousCardExpiryDate?.updateValueAndValidity();
     });
   }
 
@@ -415,7 +340,8 @@ export class DriverTachographComponent extends BaseApplicationFormComponent impl
   }
 
   override isFormValid(): boolean {
-    return super.isFormValid() && this.driverForm.valid;
+    return super.isFormValid() && 
+           (this.selectedCardType?.type !== CardType.DRIVER_TACHOGRAPH || this.driverForm.valid);
   }
 
   // Custom validators
